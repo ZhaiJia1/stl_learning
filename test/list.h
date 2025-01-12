@@ -406,7 +406,7 @@ namespace mystl {
 		while (first1 != last1 && first2 != last2) {
 			if (*first1 > *first2) {
 				transfer(first1, first2, ++first2);
-			}
+}
 			else {
 				++first1;
 			}
