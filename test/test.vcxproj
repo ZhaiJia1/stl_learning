@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -140,11 +140,18 @@
     <ClInclude Include="3mylist.h" />
     <ClInclude Include="construct.h" />
     <ClInclude Include="default_alloc_template.h" />
+    <ClInclude Include="deque.h" />
+    <ClInclude Include="heap_algo.h" />
     <ClInclude Include="list.h" />
+    <ClInclude Include="listTest.h" />
     <ClInclude Include="malloc_alloc_template.h" />
     <ClInclude Include="myiterator.h" />
     <ClInclude Include="myvector.h" />
+    <ClInclude Include="priority_queue.h" />
+    <ClInclude Include="queue.h" />
+    <ClInclude Include="rb_tree.h" />
     <ClInclude Include="simple_alloc.h" />
+    <ClInclude Include="stack.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="vectorTest.h" />
   </ItemGroup>

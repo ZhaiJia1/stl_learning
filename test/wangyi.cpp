@@ -8,7 +8,12 @@
 #include"construct.h"
 #include<windows.h>
 #include"list.h"
-
+#include"deque.h"
+#include"stack.h"
+#include"queue.h"
+#include"heap_algo.h"
+#include"priority_queue.h"
+#include"rb_tree.h"
 using namespace std;
 
 class A {
@@ -80,16 +85,15 @@ public:
 //}
 
 
+template<class T, T v>
+struct test_tem {
+    static constexpr T value = v;
+};
+
+template<int x>
+using m_int_test = test_tem<int, x>;
 int main() {
-    mystl::list<int> x;
-    x.push_back(1);
-    x.push_back(2);
-    x.push_back(2);
-    x.push_back(1);
-    cout << x.size() << endl;
-    x.unqiue();
-    cout << x.size() << endl;
-    cout << (--x.end()).node->data << endl;
+    cout << m_int_test<5>::value << endl;
     
 	return 0;
 }

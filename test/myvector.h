@@ -15,7 +15,7 @@ namespace mystl {
 		typedef value_type* iterator;
 		typedef size_t size_type;
 		typedef ptrdiff_t difference_type;
-
+		typedef const value_type& const_reference;
 	protected:
 		typedef _malloc_alloc_template<T> data_allocator;
 		iterator start_;
@@ -40,6 +40,17 @@ namespace mystl {
 			std::uninitialized_fill_n(result, n, value);//先用标准库的
 			return result;
 		}
+		
+		template<class InputIterator>
+		void range_init(InputIterator first, InputIterator last) {
+			difference_type len = distance(first, last);
+			iterator result = (iterator)data_allocator::allocate(len);
+			std::uninitialized_copy(first, last, result);
+			start_ = result;
+			end_ = result + len;
+			cap_ = end_;
+		}
+
 	public:
 		iterator begin() { return start_; }
 		iterator end() { return end_; }
@@ -68,6 +79,11 @@ namespace mystl {
 		explicit vector(size_type n) {
 			fill_initialize(n, T());
 		}
+		template<class InputIterator>
+		vector(InputIterator first, InputIterator last) {
+			range_init(first, last);
+		}
+
 		~vector() {
 			mystl::destroy(start_, end_);
 			deallocate();
@@ -177,7 +193,7 @@ namespace mystl {
 	{
 		if (n != 0) {
 			//备用空间大于待插入的空间
-			if (cap_ - end_ >= n) {
+			if (static_cast<size_type>(cap_ - end_) >= n) {
 				T x_copy = x;//参数是引用类型，考虑到覆盖？
 				//计算插入点之后的元素数量
 				const size_type elems_after = end_ - position;
@@ -192,7 +208,8 @@ namespace mystl {
 				else {
 					std::uninitialized_fill_n(end_, n - elems_after, x_copy);
 					end_ += n - elems_after;
-					std::uninitialized_copy(position, old_end+elems_after, end_);
+					//std::uninitialized_copy(position, old_end+elems_after, end_);
+					std::uninitialized_copy(position, old_end, end_);
 					end_ += elems_after;
 					std::fill(position, old_end, x_copy);
 				}
@@ -200,7 +217,8 @@ namespace mystl {
 			//空间不足，配置新空间
 			else {
 				const size_type old_size = size();
-				const size_type len = old_size + max(old_size, n);
+
+				const size_type len = old_size + std::max(old_size,n);
 				iterator new_start = data_allocator::allocate(len);
 				iterator new_end = new_start;
 				try {
@@ -208,11 +226,11 @@ namespace mystl {
 					new_end = std::uninitialized_fill_n(new_end, n, x);
 					new_end = std::uninitialized_copy(position, end_, new_end);
 				}
-				catch (const std::exception& e) {
+				catch (...) {
 					//rollback
 					mystl::destroy(new_start, new_end);
 					data_allocator::deallocate(new_start, len);
-					throw e;
+					throw ;
 				}
 				//释放旧空间
 				mystl::destroy(start_, end_);
