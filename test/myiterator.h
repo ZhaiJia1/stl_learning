@@ -4,11 +4,13 @@
 #include<type_traits>
 
 //type_traits部分定义，先放在这里
+//将值包装为类级别的编译期常量
 template<class T, T v>
 struct m_integral_constant {
 	static constexpr T value = v;
 };
 
+//类级别的编译期布尔常量，类似C++17中的bool_constant
 template<bool b>
 using m_bool_constant = m_integral_constant<bool, b>;
 typedef m_bool_constant<true> m_true_type;
@@ -16,10 +18,10 @@ typedef m_bool_constant<false> m_false_type;
 
 template<class T1,class T2>
 struct m_pair;
-
+//默认为false
 template<class T>
 struct is_pair :m_false_type {};
-
+//模板特化，编译器会优先选择最匹配的版本。当匹配到pair时，is_pair调用特化版本
 template<class T1,class T2>
 struct is_pair<m_pair<T1, T2>> :m_true_type {};
 
@@ -51,9 +53,14 @@ private:
 	//如果类型U具有iterator_category属性，会优先选用下面的重载
 	template<class U>
 	static char test(typename U::iterator_category* = 0);
+	//typename指明U::iterator_category是一个类型，而不是一个值，因为模板中依赖名称默认为值
 public:
 	static const bool value = sizeof(test<T>(0)) == sizeof(char);
 };
+
+//template<class T>
+//concept has_iterator_cat2 = requires{typename T::iterator_category; };
+
 
 template<class Iterator,bool>
 struct iterator_traits_impl{};
@@ -86,6 +93,7 @@ struct iterator_traits_helper<Iterator,true>:public iterator_traits_impl<Iterato
 template<class Iterator>
 struct _iterator_traits :public iterator_traits_helper<Iterator,has_iterator_cat<Iterator>::value> {};
 
+//对原生指针的偏特化版本
 template<class T>
 struct _iterator_traits<T*> {
 	typedef _random_access_iterator_tag iterator_category;
@@ -109,10 +117,10 @@ template<class T,class U,bool = has_iterator_cat<_iterator_traits<T>>::value>
 struct has_iterator_cat_of :public m_bool_constant<std::is_convertible<
 	typename _iterator_traits<T>::iterator_category, U>::value> {};
 
-//萃取某种迭代器
+//默认为false 的版本
 template<class T,class U>
 struct has_iterator_cat_of<T, U, false> :public m_false_type {};
-
+//萃取某种迭代器
 template<class Iterator>
 struct is_exactly_input_iterator :
 	public m_bool_constant<has_iterator_cat_of<Iterator, _input_iterator_tag>::value &&
